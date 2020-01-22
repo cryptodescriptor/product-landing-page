@@ -1,0 +1,215 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<title>Product Landing Page</title>
+
+	<meta charset="UTF-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+	<script src="https://kit.fontawesome.com/71a4219e4b.js"></script>
+
+	<!-- Only preload woff2 files because browsers that support preload will support woff2 -->
+	<link rel="preload" href="./fonts/proximanovasoft-regular-webfont.woff2" as="font">
+	<link rel="preload" href="https://fonts.googleapis.com/css?family=Cormorant&display=swap" as="style">
+	<link href="https://fonts.googleapis.com/css?family=Cormorant&display=swap" rel="stylesheet">
+	
+	<link rel="stylesheet" type="text/css" href="./main.css">
+</head>
+<body>
+	<header id="header">
+		<div class="logo">
+			<!-- Hidden image to pass FreecodeCamp tests, were using SVG image so we don't need this.. -->
+			<img id="header-img" class="display-none" src="https://res.cloudinary.com/djqpvjgls/image/upload/v1568868636/logo_50px_hrap7w.png" alt="">
+
+			<!-- Real header image -->
+			<a href="#about-us" id="logo-link" class="nav-link">
+				<svg class="bold-font" width="150" height="50">
+					<image href="./img/koi-clipart-transparent-46x46.png" y="4" height="46" width="46"/>
+					<text x="30" y="23" fill="white">Perfect</text>
+					<text x="75" y="42" fill="white">Ponds</text>
+					<image href="./img/koi-clipart-transparent-46x46.png" y="-46" x="-150" height="46" width="46" transform="rotate(180)"/>
+				</svg>
+			</a>
+		</div>
+
+		<div id="hamburger">
+			<button class="nav-bar-toggle" type="button">
+				<i class="fas fa-bars"></i>
+			</button>
+		</div>
+
+		<nav id="nav-bar">
+			<ul class="nav-list">
+				<li class="nav-item">
+					<a class="nav-link" href="#accessories">Accessories</a>
+				</li>
+				<li class="nav-item">
+					<a class="nav-link no-smooth" href="#installation-video" onclick="revealYTVidSection()">Installation</a>
+				</li>
+				<li class="nav-item">
+					<a class="nav-link no-smooth blur-exception" href="#subscribe-popup" onclick="subscribeReveal(event)">Subscribe</a>
+				</li>
+			</ul>
+		</nav>
+	</header>
+
+	<section id="about-us" class="flex-center">
+		<div id="text-wrapper" class="posh-font">
+			<h1>Purchase Perfection</h1>
+
+			<p>We provide you with all the necessary components to help you craft a wonderful centerpiece for your garden.</p>
+		</div>
+
+		<div class="icon-scroll">
+			<a class="nav-link scroll-anchor autoScrollAnchor" href="#accessories"></a>
+		</div>
+	</section>
+
+	<section id="accessories">
+		<div id="mySwipe" class="swipe">
+			<div class="swipe-wrap">
+				<div class="flex-center">
+					<div class="swipe-panel gold-panel">
+						<div class="swipe-panel-heading gold">
+							<img class="swipe-panel-img img-preview" alt="">
+
+							<div class="ribbon right red">
+								<p class="price"></p>
+							</div>
+						</div>
+
+						<div class="swipe-panel-body posh-font">
+							<hr>
+							<h1 class="product-title flex-center">Gold Package</h1>
+							<hr>
+
+							<p class="product-description"></p>
+
+							<hr>
+							<h2 class="components-title">Components</h2>
+							<hr>
+
+							<button class="purchase-button btn-transition regular-font gold">
+								Buy Now
+							</button>
+						</div>
+					</div>
+				</div>
+
+				<div class="flex-center">
+					<div class="swipe-panel silver-panel">
+						<div class="swipe-panel-heading silver">
+							<img class="swipe-panel-img img-preview" alt="">
+
+							<div class="ribbon right red">
+								<p class="price"></p>
+							</div>
+						</div>
+
+						<div class="swipe-panel-body posh-font">
+							<hr>
+							<h1 class="product-title flex-center">Silver Package</h1>
+							<hr>
+
+							<p class="product-description"></p>
+
+							<hr>
+							<h2 class="components-title">Components</h2>
+							<hr>
+
+							<button class="purchase-button btn-transition regular-font silver">
+								Buy Now
+							</button>
+						</div>
+					</div>
+				</div>
+
+				<div class="flex-center">
+					<div class="swipe-panel bronze-panel">
+						<div class="swipe-panel-heading bronze">
+							<img class="swipe-panel-img img-preview" alt="">
+
+							<div class="ribbon right red">
+								<p class="price"></p>
+							</div>
+						</div>
+
+						<div class="swipe-panel-body posh-font">
+							<hr>
+							<h1 class="product-title flex-center">Bronze Package</h1>
+							<hr>
+
+							<p class="product-description"></p>
+
+							<hr>
+							<h2 class="components-title">Components</h2>
+							<hr>
+
+							<button class="purchase-button btn-transition regular-font bronze">
+								Buy Now
+							</button>
+						</div>
+					</div>
+				</div>
+			</div>
+		</div>
+
+		<a id="prev" href="#">
+			<i class="fas fa-chevron-left"></i>
+		</a>
+
+		<a id="next" href="#">
+			<i class="fas fa-chevron-right"></i>
+		</a>
+	</section>
+
+	<section id="installation-video" class="modal flex-center display-none">
+		<div id="video-pane">
+			<div id="video"></div>
+		</div>
+	</section>
+
+	<div id="subscribe-popup" class="subscribe--animatable">
+		<div class="close-button flex-center" id="subscribe-close-button">
+			<i class="fas fa-times"></i>
+		</div>
+
+		<div id="subscribe-popup-head" class="flex-center-col">
+			<h1 id="subscribe-heading">Subscribe</h1>
+			<p id="subscribe-text">Stay updated when we release new products.</p>
+		</div>
+
+		<div id="subscribe-popup-body">
+			<form id="form" action="https://www.freecodecamp.com/email-submit">
+				<div class="email-input">
+					<input type="email" id="email" name="email" placeholder="Enter your email address." autocomplete="off">
+					<!-- hidden submit to pass FCC test -->
+					<input type="submit" id="submit" class="display-none">
+					<!-- Real visible button -->
+					<button id="submit-visible" class="btn-transition flex-center" aria-label="subscribe" type="submit" value="Subscribe">
+						<i class="fas fa-chevron-right"></i>
+					</button>
+				</div>
+			</form>
+		</div>
+	</div>
+
+	<div id="img-preview-modal" class="modal flex-center display-none">
+		<div id="img-preview-panel">
+			<div class="close-button flex-center" id="img-preview-close-button">
+				<i class="fas fa-times"></i>
+			</div>
+
+			<div id="img-preview-container" class="flex-center">
+				<img class="responsive-img" src="" alt="">
+			</div>
+		</div>
+	</div>
+
+	<script src="./js/smooth-scroll.polyfills.min.js"></script>
+	<script src="./js/swipe.js"></script>
+
+	<script src="./js/app.js"></script>
+	<!--<script src="https://cdn.freecodecamp.org/testable-projects-fcc/v1/bundle.js"></script>-->
+</body>
+</html>

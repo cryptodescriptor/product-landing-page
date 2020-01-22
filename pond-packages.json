@@ -1,0 +1,74 @@
+{
+	"common-images" : [
+		"./img/panel-images/common/flexiliner.png",
+		"./img/panel-images/common/hose.jpg",
+		"./img/panel-images/common/clips.jpg"
+	],
+
+	"gold" : {
+		"price" : "£549.99",
+		"description" : "Premium pond accessory kit with all the latest components.",
+		"header-img" : "./img/panel-images/gold-pond/set-image.jpg",
+		"component-data" : [
+			[
+				"./img/panel-images/gold-pond/spinclean-4000-filter.jpg",
+				"Spinclean 4000 Pond Filter"
+			],
+
+			[
+				"./img/panel-images/gold-pond/ultraflow-1600-pump.jpg",
+				"Ultraflow 1600 Pond Pump"
+			]
+		],
+		"common" : [
+			"PondXpert Flexiliner (9 x 7m) with fleece underlay",
+			"Pond Hose (5m x 32mm)",
+			"Clips (32mm x 4)"
+		]
+	},
+
+	"silver" : {
+		"price" : "£319.99",
+		"description" : "Cheaper solution, still some very solid equipment.",
+		"header-img" : "./img/panel-images/silver-pond/set-image.jpg",
+		"component-data" : [
+			[
+				"./img/panel-images/silver-pond/spinclean-1200-filter.jpg",
+				"Spinclean 1200 Pond Filter"
+			],
+
+
+			[
+				"./img/panel-images/silver-pond/ultraflow-6000-pump.jpg",
+				"Ultraflow 6000 Pond Pump"
+			]
+		],
+		"common" : [
+			"PondXpert Flexiliner (6 x 6m) with fleece underlay",
+			"Pond Hose (5m x 25mm)",
+			"Clips (25mm x 4)"
+		]
+	},
+
+	"bronze" : {
+		"price" : "£119.99",
+		"description" : "Our budget kit, great for people who don't want to spend a lot.",
+		"header-img" : "./img/panel-images/bronze-pond/set-image.jpg",
+		"component-data" : [
+			[
+				"./img/panel-images/bronze-pond/filtobox-3000-filter.jpg",
+				"Filtobox 3000 Pond Filter"
+			],
+
+			[
+				"./img/panel-images/bronze-pond/mightymite-2000-pump.jpg",
+				"Mightymite 2000 Pond Pump"
+			]
+		],
+		"common" : [
+			"Flexiliner 40yr LDPE Pond Liner 4x4m with Basic Underlay",
+			"Pond Hose (5m x 25mm)",
+			"Clips (25mm x 2)"
+		]
+	}
+}
