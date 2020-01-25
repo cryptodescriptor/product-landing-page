@@ -42,29 +42,23 @@ window.onload = function() {
   windowLoaded = true;
 }
 
+function doTasks() {
+  if (!windowLoaded) return;
+  
+  clearInterval(checkWindowLoadedInterval);
+
+  tasks.forEach(function(task) { task(); });
+}
+
 function onWindowLoaded(callback) {
-  if (windowLoaded) {
-    callback();
-    return;
-  }
+  if (windowLoaded) return callback();
 
   tasks.push(callback);
 
   if (checkWindowLoadedInterval === undefined) {
-    checkWindowLoadedInterval = setInterval(function() {
-      if (windowLoaded) {
-        // clear interval and execute tasks
-        clearInterval(checkWindowLoadedInterval);
-        tasks.forEach(function(task) {
-          task();
-        });
-      }
-    }, 50);
+    checkWindowLoadedInterval = setInterval(doTasks, 50);
   }
 }
-
-/* Check if client is using Edge */
-var isEdge = navigator.userAgent.match(/Edge\/\d+/);
 
 // SMOOTH SCROLL
 
@@ -76,6 +70,8 @@ var smooth = new SmoothScroll('.nav-link:not(.no-smooth)', {
 });
 
 // Autoscroll the page to #accessories if we were at 0
+
+var isEdge = navigator.userAgent.match(/Edge\/\d+/);
 
 if (!isEdge) {
   var autoScrolled = false,
@@ -412,15 +408,7 @@ function revealPage() {
   // reveal swipe
   document.querySelector('.swipe-wrap').style.visibility = 'visible';
 
-  // do scroll animation on pseudo element
-  if (isEdge) {
-    // Edge is buggy unless you wait for window load
-    onWindowLoaded(function() {
-      startScrollAnimation();
-    });
-  } else {
-    startScrollAnimation();
-  }
+  (isEdge) ? onWindowLoaded(function() { startScrollAnimation(); }) : startScrollAnimation();
 
   // reveal subscribe popup and start liteners
   intialSubscribeReveal();
@@ -461,7 +449,7 @@ function closeButtonClickHandler() {
 }
 
 function createCloseButton() {
-  // create close button a
+  // create close button anchor
   var a = document.createElement('a');
   a.addClass('close-button');
   a.id = 'youtube-close-button';
