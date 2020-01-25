@@ -403,7 +403,7 @@ header .nav-link:not(#logo-link):hover {
 }
 
 .silver {
-	background: hsl(0, 0%, 46%);
+	background: hsl(0, 0%, 55%);
 }
 
 .bronze {
@@ -512,7 +512,7 @@ hr {
 }
 
 .purchase-button.silver:hover {
-	background: hsl(0, 0%, 43%);
+	background: hsl(0, 0%, 52%);
 }
 
 .purchase-button.bronze:hover {
