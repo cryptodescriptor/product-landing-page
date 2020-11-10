@@ -171,7 +171,7 @@ imgPreviewModal.addEventListener('click', function(e) {
   }
 });
 
-/* fix to prevent img preview opening when started swiping (see line 299 in swipe.js) */
+/* fix to prevent img preview opening during swipe (see line 299 in swipe.js) */
 window.previewImg = false;
 
 // using doc.body instead of .img-preview to prevent a bug after swiping
