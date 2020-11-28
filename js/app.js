@@ -426,8 +426,6 @@ var player;
 function closeButtonClickHandler() {
   document.querySelector('#youtube-close-button').addEventListener('click', function(e) {
     hideYTVidSection();
-    // prevent page scroll
-    e.preventDefault();
   });
 }
 
