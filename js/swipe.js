@@ -277,7 +277,6 @@
                : 1 );                                 // no resistance if false
 
             // translate 1:1
-            console.log('jere');
             translate(index-1, delta.x + slidePos[index-1], 0);
             translate(index, delta.x + slidePos[index], 0);
             translate(index+1, delta.x + slidePos[index+1], 0);

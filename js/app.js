@@ -62,7 +62,7 @@ function onWindowLoaded(callback) {
 
 // SMOOTH SCROLL
 
-var smooth = new SmoothScroll('.nav-link:not(.no-smooth)', {
+var smooth = new SmoothScroll('.smooth-scroll', {
   speed: 500,
   speedAsDuration: false,
   updateURL: true,
@@ -74,19 +74,17 @@ var smooth = new SmoothScroll('.nav-link:not(.no-smooth)', {
 var isEdge = navigator.userAgent.match(/Edge\/\d+/);
 
 if (!isEdge) {
-  var autoScrolled = false,
-  autoScrollAnchor = document.querySelector('.autoScrollAnchor'),
-  prevTop = document.body.scrollTop;
+  var scrollAnchor = document.querySelector('.scroll-anchor'),
+    prevScrollTop = window.scrollY;
 
-  function autoScroll(event) {
-    if (autoScrolled === false && document.body.scrollTop >= 0 && prevTop === 0) {
+  function autoScroll() {
+    if (window.scrollY >= 0 && prevScrollTop === 0) {
       window.scrollTo(0, 0); // prevent small offset on back button
-      autoScrollAnchor.click();
-      window.removeEventListener('scroll', autoScroll);
+      scrollAnchor.click();
     }
   }
 
-  window.addEventListener('scroll', autoScroll);
+  window.addEventListener('scroll', autoScroll, {'once':true});
 }
 
 // SWIPE
@@ -101,7 +99,6 @@ var prevBtn = document.getElementById('prev'),
   nextBtn = document.getElementById('next'),
   swipeBtns = [prevBtn, nextBtn];
 
-
 swipeBtns.forEach(function(btn) {
   // stop the button from being focused when clicked
   btn.addEventListener('mousedown', function(e) {
@@ -111,36 +108,27 @@ swipeBtns.forEach(function(btn) {
   // swipe when clicked
   btn.addEventListener('click', function(e) {
     mySwipe[this.id]();
-    this.blur();
     e.preventDefault();
   });
 });
 
 // allow elements to blur when swipe is clicked
-document.addEventListener('click', function(e) {
-  if (
-      e.target !== document.activeElement &&
-      !e.target.classList.contains('blur-exception') &&
-      !document.activeElement.contains(e.target) /*  <--
-      fix bug where activeElement would be unfocused if a
-      child element of the activeElement was the target. */
-    ) {
-      document.activeElement.blur();
-  }
+document.querySelector('#accessories').addEventListener('click', function(e) {
+  document.activeElement.blur();
 });
 
 // keep swipe controller buttons on screen as we scroll down the page
-var about = document.querySelector('#about-us');
+var aboutUs = document.querySelector('#about-us');
 
 function setButtonsTop(top) {
   swipeBtns.forEach(function(btn) { btn.style.top = top; });
 }
 
 function positionButtons() {
-  if (window.scrollY > (about.clientHeight - 60)) {
+  if (window.scrollY > (aboutUs.clientHeight - 60)) {
     setButtonsTop(60 + 'px');
   } else {
-    setButtonsTop(about.clientHeight - window.scrollY + 'px');
+    setButtonsTop(aboutUs.clientHeight - window.scrollY + 'px');
   }
 }
 
@@ -171,20 +159,18 @@ imgPreviewModal.addEventListener('click', function(e) {
   }
 });
 
-/* fix to prevent img preview opening during swipe (see line 299 in swipe.js) */
+/* fix to prevent img preview opening during swipe (see line 298 in swipe.js) */
 window.previewImg = false;
 
-// using doc.body instead of .img-preview to prevent a bug after swiping
 document.body.addEventListener('mousedown', function(e) {
   if (e.target.hasClass('img-preview')) {
-      window.previewImg = true;
+    window.previewImg = true;
   }
 });
 /* end fix */
 
 // open image preview when swipe image is clicked
 
-// using doc.body instead of .img-preview to prevent a bug after swiping
 document.body.addEventListener('click', function(e) {
   if (!e.target.hasClass('img-preview') || !window.previewImg) {
     return;
@@ -202,9 +188,7 @@ document.body.addEventListener('click', function(e) {
   imgPreviewModalImg.setAttribute('src', imgSrc);
 
   // show imgPreviewModal if it is hidden
-  if (imgPreviewModal.classList.contains('display-none')) {
-    imgPreviewModal.classList.remove('display-none');
-  }
+  imgPreviewModal.classList.remove('display-none');
 });
 
 // NAVBAR
@@ -233,7 +217,7 @@ navToggle.addEventListener('click', function() {
 
 document.addEventListener('click', function(e) {
   // hide nav if clicked away from or if dropdown link was clicked
-  if (navShown && !navToggleBubble || navShown && e.target.hasClass('nav-link')) {
+  if (navShown && !navToggleBubble) {
     hideNavbar();
   }
   navToggleBubble = false;
@@ -256,7 +240,7 @@ navLinks.forEach(function(navLink) {
 
 var bg_url = './img/bg.jpg';
 
-about.style.backgroundImage = 'url('+bg_url+')';
+aboutUs.style.backgroundImage = 'url('+bg_url+')';
 
 var bg_loaded = false;
 
@@ -397,8 +381,7 @@ loadJson();
 // REVEAL WHEN LOADED
 
 function startScrollAnimation() {
-  document.querySelector('.icon-scroll')
-  .pseudoStyle('before', 'animation-name', 'scroll');
+  document.querySelector('.icon-scroll').pseudoStyle('before', 'animation-name', 'scroll');
 }
 
 function revealPage() {
