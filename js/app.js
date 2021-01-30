@@ -77,14 +77,12 @@ if (!isEdge) {
   var scrollAnchor = document.querySelector('.scroll-anchor'),
     prevScrollTop = window.scrollY;
 
-  function autoScroll() {
+  window.addEventListener('scroll', function() {
     if (window.scrollY >= 0 && prevScrollTop === 0) {
-      window.scrollTo(0, 0); // prevent small offset on back button
+      //window.scrollTo(0, 0);
       scrollAnchor.click();
     }
-  }
-
-  window.addEventListener('scroll', autoScroll, {'once':true});
+  }, {'once':true});
 }
 
 // SWIPE
