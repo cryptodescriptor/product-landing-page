@@ -130,7 +130,8 @@ function positionButtons() {
   }
 }
 
-positionButtons(); // initial position
+// initial position
+positionButtons();
 
 // re-position on page resize and also on scroll
 window.addEventListener('resize', function() {
@@ -161,9 +162,7 @@ imgPreviewModal.addEventListener('click', function(e) {
 window.previewImg = false;
 
 document.body.addEventListener('mousedown', function(e) {
-  if (e.target.hasClass('img-preview')) {
-    window.previewImg = true;
-  }
+  if (e.target.hasClass('img-preview')) window.previewImg = true;
 });
 /* end fix */
 
@@ -174,12 +173,10 @@ document.body.addEventListener('click', function(e) {
     return;
   }
 
-  var imgSrc;
-
   if (e.target.hasClass('component-img-container')) {
-    imgSrc = e.target.childNodes[0].getAttribute('src');
+    var imgSrc = e.target.childNodes[0].getAttribute('src');
   } else {
-    imgSrc = e.target.getAttribute('src');
+    var imgSrc = e.target.getAttribute('src');
   }
 
   // set imgPreviewModal src
@@ -367,7 +364,7 @@ function loadJson() {
     populatedPanels = true;
   };
 
-  req.onerror = function(e) {
+  req.onerror = function() {
     console.log('Failed to load pond-packages.json!');
   };
 
@@ -389,7 +386,7 @@ function revealPage() {
   // reveal swipe
   document.querySelector('.swipe-wrap').style.visibility = 'visible';
 
-  (isEdge) ? onWindowLoaded(function() { startScrollAnimation(); }) : startScrollAnimation();
+  (isEdge) ? onWindowLoaded(startScrollAnimation) : startScrollAnimation();
 
   // reveal subscribe popup and start liteners
   intialSubscribeReveal();
@@ -400,11 +397,10 @@ function revealPage() {
 
 var checkLoad = setInterval(function() {
   if (
-      document.documentElement.classList.contains('fontawesome-i2svg-active') &&
-      bg_loaded && 
-      populatedPanels
-    ) {
-      revealPage();
+    document.documentElement.classList.contains('fontawesome-i2svg-active')
+    && bg_loaded
+    && populatedPanels) {
+    revealPage();
   }
 }, 50);
 
@@ -491,17 +487,10 @@ if (window.location.hash === '#installation-video') {
 
 // show/hide if navigated to/away using back button
 window.addEventListener('hashchange', function() {
-  if (
-      window.location.hash !== '#installation-video' && 
-      ytVidSection.visible()
-    ) {
+  if (window.location.hash !== '#installation-video' && ytVidSection.visible())
     hideYTVidSection();
-  } else if (
-      window.location.hash === '#installation-video' && 
-      !ytVidSection.visible()
-    ) {
+  else if (window.location.hash === '#installation-video' && !ytVidSection.visible())
     revealYTVidSection();
-  }
 });
 
 // SUBSCRIBE POPUP
@@ -545,8 +534,6 @@ function subscribeReveal(e) {
 }
 
 function intialSubscribeReveal() {
-  /* Called from revealPage() function */
-
   // slide subscribe into view
   subscribePopup.addEventListener('transitionend', function() {
     subscribePopup.classList.remove('subscribe--animatable');
