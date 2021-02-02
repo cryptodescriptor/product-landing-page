@@ -212,9 +212,7 @@ navToggle.addEventListener('click', function() {
 
 document.addEventListener('click', function(e) {
   // hide nav if clicked away from or if dropdown link was clicked
-  if (navShown && !navToggleBubble) {
-    hideNavbar();
-  }
+  if (navShown && !navToggleBubble) hideNavbar();
   navToggleBubble = false;
 });
 
