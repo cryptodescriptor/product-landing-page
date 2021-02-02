@@ -537,7 +537,7 @@ function intialSubscribeReveal() {
   // slide subscribe into view
   subscribePopup.addEventListener('transitionend', function() {
     subscribePopup.classList.remove('subscribe--animatable');
-  }, true); // capturing phase
+  });
 
   translateY();
 }
