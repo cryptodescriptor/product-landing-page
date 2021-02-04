@@ -78,7 +78,7 @@ if (!isEdge) {
     prevScrollTop = window.scrollY;
 
   window.addEventListener('scroll', function() {
-    if (window.scrollY >= 0 && prevScrollTop === 0) {
+    if (prevScrollTop === 0) {
       window.scrollTo(0, 0); // prevent small offset on back button
       scrollAnchor.click();
     }
