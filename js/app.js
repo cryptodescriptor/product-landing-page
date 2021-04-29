@@ -173,10 +173,12 @@ document.body.addEventListener('click', function(e) {
     return;
   }
 
+  var imgSrc;
+
   if (e.target.hasClass('component-img-container')) {
-    var imgSrc = e.target.childNodes[0].getAttribute('src');
+    imgSrc = e.target.childNodes[0].getAttribute('src');
   } else {
-    var imgSrc = e.target.getAttribute('src');
+    imgSrc = e.target.getAttribute('src');
   }
 
   // set imgPreviewModal src
