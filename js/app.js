@@ -519,11 +519,10 @@ function doTranslate() {
 
 function translateY() {
   onWindowLoaded(function() {
-    // Wait 1620ms for scroll animation to complete.
-    setTimeout(function() {
+    document.querySelector('.icon-scroll').addEventListener('animationend', function() {
       window.removeEventListener('resize', subscribePos);
       doTranslate();
-    }, 1620);
+    }, {'once': true});
   });
 }
 
