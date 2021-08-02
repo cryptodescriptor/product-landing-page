@@ -435,7 +435,7 @@ class productLandingPage {
 
   subscribePopupCloseListener() {
     document.querySelector('#subscribe-close-button').addEventListener('click', () => {
-      this.e.subscribePopup.addClass('display-none').bind(this);
+      this.e.subscribePopup.addClass('display-none');
     });
   }
 
