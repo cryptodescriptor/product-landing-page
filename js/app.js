@@ -453,7 +453,7 @@ class productLandingPage {
   subscribePopupTranslateY() {
     this.onWindowLoaded(() => {
       document.querySelector('.icon-scroll').addEventListener('animationend', () => {
-        window.removeEventListener('resize', this.subscribePos);
+        window.removeEventListener('resize', this.subMoveEventFunc);
         this.doSubscribePopupTranslate();
       }, {'once': true});
     });
@@ -470,7 +470,8 @@ class productLandingPage {
 
   subscribePopupListeners() {
     this.onWindowLoaded(() => { this.subscribePos(); });
-    window.addEventListener('resize', this.subscribePos);
+    this.subMoveEventFunc = this.subscribePos.bind(this);
+    window.addEventListener('resize', this.subMoveEventFunc);
     this.subscribePopupCloseListener();
   }
 
