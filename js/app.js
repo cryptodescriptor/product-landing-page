@@ -234,7 +234,7 @@ class productLandingPage {
     this.navFocusFix();
   }
 
-    preventBtnFocusOutline(btn) {
+  preventBtnFocusOutline(btn) {
     btn.addEventListener('mousedown', e => {
       e.preventDefault();
     });
