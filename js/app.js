@@ -1,542 +1,535 @@
-// PROTOTYPES
-
-var UID = {
-  _current: 0,
-  getNew: function(){
-    this._current++;
-    return this._current;
-  }
-};
-
-/* proto allows editing of pseudo element styles */
-HTMLElement.prototype.pseudoStyle = function(element,prop,value) {
-  var _this = this;
-  var _sheetId = "pseudoStyles";
-  var _head = document.head || document.getElementsByTagName('head')[0];
-  var _sheet = document.getElementById(_sheetId) || document.createElement('style');
-  _sheet.id = _sheetId;
-  var className = "pseudoStyle" + UID.getNew();
-  
-  _this.className +=  " "+className; 
-  
-  _sheet.innerHTML += " ."+className+":"+element+"{"+prop+":"+value+"}";
-  _head.appendChild(_sheet);
-  return this;
-};
-
-Object.prototype.hasClass = function(className) {
-  return (this.classList.contains(className));
-};
-
-// OTHER STUFF
-
-/* Firefox isn't letting me add a window load eventListener 
-inside setInterval context, this is a workaround. */  
-
-var windowLoaded = false,
-  checkWindowLoadedInterval,
-  windowLoaded = false,
-  tasks = [];
-
-window.onload = function() {
-  windowLoaded = true;
-}
-
-function doTasks() {
-  if (!windowLoaded) return;
-  
-  clearInterval(checkWindowLoadedInterval);
-
-  tasks.forEach(function(task) { task(); });
-}
-
-function onWindowLoaded(callback) {
-  if (windowLoaded) return callback();
-
-  tasks.push(callback);
-
-  if (checkWindowLoadedInterval === undefined) {
-    checkWindowLoadedInterval = setInterval(doTasks, 50);
-  }
-}
-
-// SMOOTH SCROLL
-
-var smooth = new SmoothScroll('.smooth-scroll', {
-  speed: 500,
-  speedAsDuration: false,
-  updateURL: true,
-  popstate: false
-});
-
-// Autoscroll the page to #accessories if we were at 0
-
-var isEdge = navigator.userAgent.match(/Edge\/\d+/);
-
-if (!isEdge) {
-  var scrollAnchor = document.querySelector('.scroll-anchor'),
-    prevScrollTop = window.scrollY;
-
-  window.addEventListener('scroll', function() {
-    if (prevScrollTop === 0) {
-      window.scrollTo(0, 0); // prevent small offset on back button
-      scrollAnchor.click();
+class productLandingPage {
+	constructor() {
+    this.e = {
+      'aboutUs': document.querySelector('#about-us'),
+      'swipeBtns': [
+        document.getElementById('prev'),
+        document.getElementById('next')
+      ],
+      'header': document.getElementById('header'),
+      'ytVidSection': document.querySelector('#installation-video'),
+      'subscribePopup': document.querySelector('#subscribe-popup'),
+      'emailInput': document.getElementById('email')
     }
-  }, {'once':true});
-}
 
-// SWIPE
+    this.headerHeight = this.e.header.clientHeight;
+    this.isEdgeBrowser = navigator.userAgent.match(/Edge\/\d+/);
+    this.githubRaw = 'https://raw.githubusercontent.com/cryptodescriptor';
 
-var swipeElement = document.getElementById('mySwipe');
+    this.windowLoaded = false;
+    window.onload = () => { this.windowLoaded = true; };
+    this.tasks = [];
 
-window.mySwipe = new Swipe(swipeElement, {
-  draggable:true
-});
-
-var prevBtn = document.getElementById('prev'),
-  nextBtn = document.getElementById('next'),
-  swipeBtns = [prevBtn, nextBtn];
-
-swipeBtns.forEach(function(btn) {
-  // stop the button from being focused when clicked
-  btn.addEventListener('mousedown', function(e) {
-    e.preventDefault();
-  });
-
-  // swipe when clicked
-  btn.addEventListener('click', function(e) {
-    mySwipe[this.id]();
-    e.preventDefault();
-  });
-});
-
-// allow elements to blur when swipe is clicked
-document.querySelector('#accessories').addEventListener('click', function(e) {
-  document.activeElement.blur();
-});
-
-// keep swipe controller buttons on screen as we scroll down the page
-var aboutUs = document.querySelector('#about-us');
-
-function setButtonsTop(top) {
-  swipeBtns.forEach(function(btn) { btn.style.top = top; });
-}
-
-function positionButtons() {
-  if (window.scrollY > (aboutUs.clientHeight - 60)) {
-    setButtonsTop(60 + 'px');
-  } else {
-    setButtonsTop(aboutUs.clientHeight - window.scrollY + 'px');
-  }
-}
-
-// initial position
-positionButtons();
-
-// re-position on page resize and also on scroll
-window.addEventListener('resize', function() {
-  positionButtons();
-});
-
-window.onscroll = function() {
-  positionButtons();
-};
-
-// IMG PREVIEW's
-
-var imgPreviewModal = document.querySelector('#img-preview-modal'),
-  imgPreviewModalImg = document.querySelector('#img-preview-container > img');
-
-// close image preview if button is clicked or if the panel is clicked away from
-document.querySelector('#img-preview-close-button').addEventListener('click', function() {
-  imgPreviewModal.addClass('display-none');
-});
-
-imgPreviewModal.addEventListener('click', function(e) {
-  if (e.target.id === 'img-preview-modal') {
-    imgPreviewModal.addClass('display-none');
-  }
-});
-
-/* fix to prevent img preview opening during swipe (see line 298 in swipe.js) */
-window.previewImg = false;
-
-document.body.addEventListener('mousedown', function(e) {
-  if (e.target.hasClass('img-preview')) window.previewImg = true;
-});
-/* end fix */
-
-// open image preview when swipe image is clicked
-
-document.body.addEventListener('click', function(e) {
-  if (!e.target.hasClass('img-preview') || !window.previewImg) {
-    return;
+    this.loadBackgroundImage('./img/bg.jpg');
+    this.fetchAndProcessPanelData();
+    this.setupPageFunctionalities();
+    this.revealOnLoad();
   }
 
-  var imgSrc;
+  imageLoaded(bgImg) {
+    let img = new Image();
 
-  if (e.target.hasClass('component-img-container')) {
-    imgSrc = e.target.childNodes[0].getAttribute('src');
-  } else {
-    imgSrc = e.target.getAttribute('src');
+    img.onload = () => {
+      this.backgroundLoaded = true;
+    }
+
+    img.src = bgImg;
+
+    if (img.complete) {
+      img.onload();
+    }
   }
 
-  // set imgPreviewModal src
-  imgPreviewModalImg.setAttribute('src', imgSrc);
+  loadBackgroundImage(bgImg) {
+    this.e.aboutUs.style.backgroundImage = `url(${bgImg})`;
+    this.imageLoaded(bgImg);
+  }
 
-  // show imgPreviewModal if it is hidden
-  imgPreviewModal.classList.remove('display-none');
-});
+  setPanelHeaderImage(panel) {
+    panel.querySelector('.swipe-panel-img').setAttribute('src', this.panelData['header-img']);
+  }
 
-// NAVBAR
+  setPanelPriceTag(panel) {
+    panel.querySelector('.price').innerHTML = this.panelData['price'];
+  }
 
-var navToggle = document.querySelector('.nav-bar-toggle');
-var navbar = document.querySelector('#nav-bar');
+  setPanelDescription(panel) {
+    panel.querySelector('.product-description').innerHTML = this.panelData['description'];
+  }
 
-var navShown = false;
+  addClassesToComponentImgContainer(imgContainer) {
+    imgContainer.addClasses([
+      'component-img-container',
+      'img-preview',
+      'inline-flex',
+      'flex-center'
+    ]);
+  }
 
-function showNavbar() {
-  navbar.style.display = 'inline-block';
-  navShown = true;
-}
+  addClassesToComponentImg(img) {
+    img.addClasses(['responsive-img-whc', 'img-preview']);
+  }
 
-function hideNavbar() {
-  navbar.style.display = 'none';
-  navShown = false;
-}
+  createComponentImg(imgSrc) {
+    let imgContainer = document.createElement('div');
+    this.addClassesToComponentImgContainer(imgContainer);
+    let img = document.createElement('img');
+    this.addClassesToComponentImg(img);
+    img.setAttribute('src', imgSrc);
+    imgContainer.appendChild(img);
+    return imgContainer;
+  }
 
-var navToggleBubble = false;
+  createComponentSpacer() {
+    let spacer = document.createElement('div');
+    spacer.addClass('component-spacer');
+    return spacer;
+  }
 
-navToggle.addEventListener('click', function() {
-  navToggleBubble = true;
-  (!navShown) ? showNavbar() : hideNavbar();
-});
+  createComponentDescription(description) {
+    let componentDescription = document.createElement('div');
+    componentDescription.addClass('component-description');
+    componentDescription.innerHTML = description;
+    return componentDescription;
+  }
 
-document.addEventListener('click', function(e) {
-  // hide nav if clicked away from or if dropdown link was clicked
-  if (navShown && !navToggleBubble) hideNavbar();
-  navToggleBubble = false;
-});
+  createComponentDIV(imgSrc, description) {
+    // Row
+    let component = document.createElement('div');
+    component.addClasses(['component-row', 'flex-center']);
+    // Img
+    component.appendChild(this.createComponentImg(imgSrc));
+    // Spacer
+    component.appendChild(this.createComponentSpacer());
+    // Description
+    component.appendChild(this.createComponentDescription(description));
+    return component;
+  }
 
-// keep focused .nav-link infront of the others to allow outline
-// to display correctly
-var navLinks = document.querySelectorAll('#nav-bar .nav-link');
+  createPanelComponents(panel, JSONdata) {
+    let panelBtn = panel.querySelector('.swipe-panel-body > button');
+    let panelBody = panel.querySelector('.swipe-panel-body');
 
-navLinks.forEach(function(navLink) {
-  navLink.addEventListener('focus', function(e) {
-    navLinks.forEach(function(nLink) {
-      nLink.parentNode.style.zIndex = '0';
+    this.panelData['component-data'].forEach(component => {
+      let componentDIV = this.createComponentDIV(component[0], component[1]);
+      panelBody.insertBefore(componentDIV, panelBtn);
     });
-    e.target.parentNode.style.zIndex = '1';
-  });
-});
 
-// LOAD BG IMG
-
-var bg_url = './img/bg.jpg';
-
-aboutUs.style.backgroundImage = 'url('+bg_url+')';
-
-var bg_loaded = false;
-
-function imgLoaded() {
-  var img = new Image();
-
-  img.onload = function() {
-    bg_loaded = true;
+    JSONdata['common-images'].forEach((img, i) =>  {
+      let componentDiv = this.createComponentDIV(img, this.panelData['common'][i]);
+      panelBody.insertBefore(componentDiv, panelBtn);
+    });
   }
 
-  img.src = bg_url;
+  populatePanels(JSONdata) {
+    let panels = ['gold', 'silver', 'bronze'];
 
-  if (img.complete) img.onload();
-}
+    panels.forEach((panelName) => {
+      let panel = document.querySelector('.'+panelName+'-panel')
+      this.panelData = JSONdata[panelName];
+      this.setPanelHeaderImage(panel);
+      this.setPanelPriceTag(panel);
+      this.setPanelDescription(panel);
+      this.createPanelComponents(panel, JSONdata);
+    });
 
-imgLoaded();
-
-// POPULATE PANEL'S WITH DATA AND IMAGES
-
-var panelNames = ['gold', 'silver', 'bronze'];
-var populatedPanels = false;
-
-Object.prototype.addClass = function(className) {
-  this.classList.add(className);
-}
-
-Object.prototype.addClasses = function(classes) {
-  var self = this;
-
-  classes.forEach(function(c) {
-    self.classList.add(c);
-  });
-}
-
-function createComponentImg(imgSrc) {
-  var imgContainer = document.createElement('DIV');
-
-  imgContainer.addClasses([
-    'component-img-container',
-    'img-preview',
-    'inline-flex',
-    'flex-center'
-  ]);
-
-  var img = document.createElement('IMG');
-  img.addClasses(['responsive-img-whc', 'img-preview']);
-  img.setAttribute('src', imgSrc);
-
-  imgContainer.appendChild(img);
-
-  return imgContainer;
-}
-
-function createComponentSpacer() {
-  var spacer = document.createElement('DIV');
-  spacer.addClass('component-spacer');
-  return spacer;
-}
-
-function createComponentDescription(description) {
-  var cDesc = document.createElement('DIV');
-  cDesc.addClass('component-description');
-  cDesc.innerHTML = description;
-  return cDesc;
-}
-
-function createComponentDiv(imgSrc, description) {
-  // create row
-  var component = document.createElement('DIV');
-  component.addClasses(['component-row', 'flex-center']);
-
-  // append component img
-  component.appendChild(createComponentImg(imgSrc));
-
-  // create component spacer
-  component.appendChild(createComponentSpacer());
-
-  // create component description
-  component.appendChild(createComponentDescription(description));
-
-  return component;
-}
-
-function createComponents(panel, jsonData, panelData) {
-  var panelBtn = panel.querySelector('.swipe-panel-body > button');
-  var panelBody = panel.querySelector('.swipe-panel-body');
-
-  panelData['component-data'].forEach(function(component) {
-    var componentDiv = createComponentDiv(component[0], component[1]);
-    panelBody.insertBefore(componentDiv, panelBtn);
-  });
-
-  jsonData['common-images'].forEach(function(img, i) {
-    var componentDiv = createComponentDiv(img, panelData['common'][i]);
-    panelBody.insertBefore(componentDiv, panelBtn);
-  });
-}
-
-function populatePanels(jsonData) {
-  panelNames.forEach(function(name) {
-    panel = document.querySelector('.' + name + '-panel');
-
-    var panelData = jsonData[name];
-
-    // set header img
-    panel.querySelector('.swipe-panel-img').setAttribute('src', panelData['header-img']);
-
-    // set price
-    panel.querySelector('.price').innerHTML = panelData['price'];
-
-    // set description
-    panel.querySelector('.product-description').innerHTML = panelData['description'];
-
-    // create components
-    createComponents(panel, jsonData, panelData);
-  });
-}
-
-function loadJson() {
-  var req = new XMLHttpRequest();
-  req.responseType = 'json';
-  req.open('GET', 'https://raw.githubusercontent.com/cryptodescriptor/product-landing-page/master/pond-packages.json', true);
-
-  req.onload = function() {
-    populatePanels(req.response);
-    populatedPanels = true;
-  };
-
-  req.onerror = function() {
-    console.log('Failed to load pond-packages.json!');
-  };
-
-  req.send();
-}
-
-loadJson();
-
-// REVEAL WHEN LOADED
-
-function startScrollAnimation() {
-  document.querySelector('.icon-scroll').pseudoStyle('before', 'animation-name', 'scroll');
-}
-
-function revealPage() {
-  // reveal body
-  document.body.style.visibility = 'visible';
-
-  // reveal swipe
-  document.querySelector('.swipe-wrap').style.visibility = 'visible';
-
-  (isEdge) ? onWindowLoaded(startScrollAnimation) : startScrollAnimation();
-
-  // reveal subscribe popup and start liteners
-  intialSubscribeReveal();
-
-  // clear load check interval
-  clearInterval(checkLoad);
-}
-
-var checkLoad = setInterval(function() {
-  if (
-    document.documentElement.classList.contains('fontawesome-i2svg-active')
-    && bg_loaded
-    && populatedPanels) {
-    revealPage();
+    this.finishedPopulatingPanels = true;
   }
-}, 50);
 
-// YOUTUBE
+  fetchAndProcessPanelData() {
+    fetch(this.githubRaw + '/product-landing-page/master/pond-packages.json')
+    .then(response => response.json())
+    .then(data => this.populatePanels(data));
+  }
 
-// 1. This code loads the IFrame Player API code asynchronously.
-var tag = document.createElement('script');
+  imgPreviewCloseListeners(imgPreviewModal) {
+    // Close on close button click
+    document.querySelector('#img-preview-close-button').addEventListener('click', () => {
+      imgPreviewModal.addClass('display-none');
+    });
 
-tag.src = "https://www.youtube.com/iframe_api";
-var firstScriptTag = document.getElementsByTagName('script')[0];
-firstScriptTag.parentNode.insertBefore(tag, firstScriptTag);
+    // Close when clicked away
+    imgPreviewModal.addEventListener('click', e => {
+      if (e.target.id === 'img-preview-modal') {
+        imgPreviewModal.addClass('display-none');
+      }
+    });
+  }
 
-// 2. Create an <iframe> (and YouTube player)
-//    after the API code downloads. Also create the close button.
-var player;
+  swipeImgPreviewFix() {
+    /* Fix to prevent img preview opening during swipe (see line 298 in swipe.js) */
+    window.previewImg = false;
 
-function closeButtonClickHandler() {
-  document.querySelector('#youtube-close-button').addEventListener('click', function(e) {
-    hideYTVidSection();
-    // prevent page scroll
-    e.preventDefault();
-  });
-}
+    document.body.addEventListener('mousedown', e => {
+      if (e.target.hasClass('img-preview')) window.previewImg = true;
+    });
+  }
 
-function createCloseButton() {
-  // create close button anchor
-  var a = document.createElement('a');
-  a.addClass('close-button');
-  a.id = 'youtube-close-button';
-  a.href = '#';
-  a.tabIndex = 0;
-  // create and append fontawesome "X" to anchor
-  var times = document.createElement('i');
-  ['fas', 'fa-times'].forEach(function(c) { times.addClass(c) });
-  a.appendChild(times);
-  // align "X" centrally
-  a.addClass('flex-center');
-  // prepend to #video-pane
-  document.getElementById('video-pane').prepend(a);
-  // start click handler
-  closeButtonClickHandler();
-}
+  shouldNotPreview(e) {
+    return !e.target.hasClass('img-preview') || !window.previewImg;
+  }
 
-function onYouTubeIframeAPIReady() {
-  player = new YT.Player('video', {
-    height: '100%',
-    width: '100%',
-    videoId: 'YC-RVqsEmsU',
-    events: {
-      'onReady' : createCloseButton()
+  imgPreviewOpenListener(imgPreviewModal, imgPreviewModalImg) {
+    document.body.addEventListener('click', e => {
+      if (this.shouldNotPreview(e)) return;
+      let imgSrc;
+      if (e.target.hasClass('component-img-container')) {
+        imgSrc = e.target.childNodes[0].getAttribute('src');
+      } else {
+        imgSrc = e.target.getAttribute('src');
+      }
+      imgPreviewModalImg.setAttribute('src', imgSrc);
+      imgPreviewModal.classList.remove('display-none');
+    });
+  }
+
+  setupPanelImgPreviews() {
+    let imgPreviewModal = document.querySelector('#img-preview-modal');
+    let imgPreviewModalImg = document.querySelector('#img-preview-container > img');
+    this.imgPreviewCloseListeners(imgPreviewModal);
+    this.swipeImgPreviewFix();
+    this.imgPreviewOpenListener(imgPreviewModal, imgPreviewModalImg);
+  }
+
+  showNavbar(navbar) {
+    navbar.style.display = 'inline-block';
+    this.navShown = true;
+  }
+
+  hideNavbar(navbar) {
+    navbar.style.display = 'none';
+    this.navShown = false;
+  }
+
+  navFocusFix() {
+    /* Moves focused navlink infront of others for outline to display properly */
+    let navLinks = document.querySelectorAll('#nav-bar .nav-link');
+    navLinks.forEach(navLink => {
+      navLink.addEventListener('focus', e => {
+        navLinks.forEach(nLink => {
+          nLink.parentNode.style.zIndex = '0';
+        });
+        e.target.parentNode.style.zIndex = '1';
+      });
+    });
+  }
+
+  setupNavbar() {
+    let navToggle = document.querySelector('.nav-bar-toggle');
+    let navbar = document.querySelector('#nav-bar');
+    this.navShown = false;
+    let navToggleBubble = false;
+
+    navToggle.addEventListener('click', () => {
+      navToggleBubble = true;
+      (!this.navShown) ? this.showNavbar(navbar) : this.hideNavbar(navbar);
+    });
+
+    document.addEventListener('click', e => {
+      if (this.navShown && !navToggleBubble) this.hideNavbar(navbar);
+      navToggleBubble = false;
+    });
+
+    this.navFocusFix();
+  }
+
+    preventBtnFocusOutline(btn) {
+    btn.addEventListener('mousedown', e => {
+      e.preventDefault();
+    });
+  }
+
+  swipeOnBtnClick(btn) {
+    btn.addEventListener('click', e => {
+      window.mySwipe[btn.id]();
+      e.preventDefault();
+    });
+  }
+
+  initSwiping() {
+    let swipeElement = document.getElementById('mySwipe');
+
+    window.mySwipe = new Swipe(swipeElement, {
+      draggable: true
+    });
+
+    this.e.swipeBtns.forEach(btn => {
+      this.preventBtnFocusOutline(btn);
+      this.swipeOnBtnClick(btn);
+    });
+  }
+
+  allowSwipeBlur() {
+    /* Lets elements blur when swipe div is clicked (problem with swipe.js) */
+    document.querySelector('#accessories').addEventListener('click', e => {
+      document.activeElement.blur();
+    });
+  }
+
+  setSwipeBtnsTop(top) {
+    this.e.swipeBtns.forEach(btn => { btn.style.top = top; });
+  }
+
+  setSwipeBtnsPos() {
+    let aboutUs = this.e.aboutUs;
+    if (window.scrollY > (aboutUs.clientHeight - this.headerHeight)) {
+      this.setSwipeBtnsTop(this.headerHeight + 'px');
+    } else {
+      this.setSwipeBtnsTop(aboutUs.clientHeight - window.scrollY + 'px');
     }
-  });
-}
-
-// Reveal/Hide Youtube video section
-var ytVidSection = document.querySelector('#installation-video');
-
-ytVidSection.visible = function() {
-  return (!ytVidSection.hasClass('display-none'));
-}
-
-function revealYTVidSection() {
-  ytVidSection.classList.remove('display-none');
-}
-
-function hideYTVidSection() {
-  if (typeof player.pauseVideo !== 'undefined') {
-    player.pauseVideo();
   }
-  ytVidSection.addClass('display-none');
-}
 
-// hide if #video-pane was clicked away from
-ytVidSection.addEventListener('click', function(e) {
-  if (e.target.id === 'installation-video') {
-    hideYTVidSection();
+  swipeBtnsPositioning() {
+    this.setSwipeBtnsPos();
+
+    window.onresize = () => {
+      this.setSwipeBtnsPos();
+    };
+
+    window.onscroll = () => {
+      this.setSwipeBtnsPos();
+    };
   }
-});
 
-// reveal on page load
-if (window.location.hash === '#installation-video') {
-  revealYTVidSection();
+  setupSwipe() {
+    this.initSwiping();
+    this.allowSwipeBlur();
+    this.swipeBtnsPositioning();
+  }
+
+  initSmoothScrollListener() {
+    let scrollAnchor = document.querySelector('.scroll-anchor');
+    let yOffset = window.scrollY;
+
+    window.addEventListener('scroll', () => {
+      if (yOffset === 0) {
+        window.scrollTo(0, 0);
+        scrollAnchor.click();
+      }
+    },
+    { 'once': true });
+  }
+
+  setupSmoothScroll() {
+    this.smooth = new SmoothScroll('.smooth-scroll', {
+      speed: 500,
+      speedAsDuration: false,
+      updateURL: true,
+      popstate: false
+    });
+
+    if (!this.isEdgeBrowser) {
+      this.initSmoothScrollListener();
+    }
+  }
+
+  loadYTAsync() {
+    let tag = document.createElement('script');
+    tag.src = 'https://www.youtube.com/iframe_api';
+    let firstScriptTag = document.getElementsByTagName('script')[0];
+    firstScriptTag.parentNode.insertBefore(tag, firstScriptTag);
+  }
+
+  setupYTSectionHiddenGetter() {
+    Object.defineProperty(this.e.ytVidSection, 'isHidden', { 
+      get: () => {
+        return this.e.ytVidSection.hasClass('display-none'); 
+      } 
+    });
+  }
+
+  createYTCloseButtonAnchor() {
+    let a = document.createElement('a');
+    a.addClass('close-button');
+    a.id = 'youtube-close-button';
+    a.href = '#';
+    a.tabIndex = 0;
+    return a;
+  }
+
+  appendYTCloseButtonX(a) {
+    let times = document.createElement('i');
+    ['fas', 'fa-times'].forEach(c => { times.addClass(c) });
+    a.appendChild(times);
+  }
+
+  hideYTVidSection() {
+    if (typeof this.player.pauseVideo !== 'undefined') {
+      this.player.pauseVideo();
+    }
+    this.e.ytVidSection.addClass('display-none');
+  }
+
+  revealYTVidSection() {
+    this.e.ytVidSection.classList.remove('display-none');
+  }
+
+  ytCloseButtonClickHandler() {
+    document.querySelector('#youtube-close-button').addEventListener('click', e => {
+      this.hideYTVidSection();
+      // Prevent page scroll
+      e.preventDefault();
+    });
+  }
+
+  createYTCloseButton() {
+    let a = this.createYTCloseButtonAnchor();
+    this.appendYTCloseButtonX(a);
+    // Align "X" centrally
+    a.addClass('flex-center');
+    // Prepend to #video-pane
+    document.getElementById('video-pane').prepend(a);
+    // Start click handler
+    this.ytCloseButtonClickHandler();
+  }
+
+  onYTLoaded() {
+    window.onYouTubeIframeAPIReady = () => {
+      this.player = new YT.Player('video', {
+        height: '100%',
+        width: '100%',
+        videoId: 'YC-RVqsEmsU',
+        events: {
+          'onReady' : this.createYTCloseButton()
+        }
+      });
+    };
+  }
+
+  hideYTWhenOnClickAway() {
+    this.e.ytVidSection.addEventListener('click', e => {
+      if (e.target.id === 'installation-video') {
+        this.hideYTVidSection();
+      }
+    });
+  }
+
+  revealYTOnPageLoad() {
+    if (window.location.hash === '#installation-video') {
+      this.revealYTVidSection();
+    }
+  }
+
+  showOrHideYTOnNavigation() {
+    window.addEventListener('hashchange', () => {
+      if (window.location.hash !== '#installation-video' && !this.e.ytVidSection.isHidden)
+        this.hideYTVidSection();
+      else if (window.location.hash === '#installation-video' && this.e.ytVidSection.isHidden)
+        this.revealYTVidSection();
+    });
+  }
+
+  setupYoutube() {
+    this.onYTLoaded();
+    this.loadYTAsync();
+    this.setupYTSectionHiddenGetter();
+    this.hideYTWhenOnClickAway();
+    this.revealYTOnPageLoad();
+    this.showOrHideYTOnNavigation();
+  }
+
+  subscribePos() {
+    this.e.subscribePopup.style.bottom = '-' + (this.e.subscribePopup.clientHeight + 12) + 'px';
+  }
+
+  subscribePopupCloseListener() {
+    document.querySelector('#subscribe-close-button').addEventListener('click', () => {
+      this.e.subscribePopup.addClass('display-none').bind(this);
+    });
+  }
+
+  subscribeReveal(e) {
+    e.preventDefault();
+    this.e.subscribePopup.classList.remove('display-none');
+    this.e.emailInput.focus();
+  }
+
+  doSubscribePopupTranslate() {
+    let offset = parseInt(this.e.subscribePopup.style.bottom);
+    this.e.subscribePopup.style.transform = 'translateY('+offset+'px)';
+  }
+
+  subscribePopupTranslateY() {
+    this.onWindowLoaded(() => {
+      document.querySelector('.icon-scroll').addEventListener('animationend', () => {
+        window.removeEventListener('resize', this.subscribePos);
+        this.doSubscribePopupTranslate();
+      }, {'once': true});
+    });
+  }
+
+  intialSubscribeReveal() {
+    // Slides subscribe popup into view
+    this.e.subscribePopup.addEventListener('transitionend', () => {
+      this.e.subscribePopup.classList.remove('subscribe--animatable');
+    });
+
+    this.subscribePopupTranslateY();
+  }
+
+  subscribePopupListeners() {
+    this.onWindowLoaded(() => { this.subscribePos(); });
+    window.addEventListener('resize', this.subscribePos);
+    this.subscribePopupCloseListener();
+  }
+
+  setupPageFunctionalities() {
+    this.setupSmoothScroll();
+    this.setupPanelImgPreviews();
+    this.setupNavbar();
+    this.setupSwipe();
+    this.setupYoutube();
+    this.subscribePopupListeners();
+  }
+
+  doTasks() {
+    if (!this.windowLoaded) return;
+    window.clearInterval(this.checkWindowLoadedInterval);
+    this.tasks.forEach(task => { task(); });
+  }
+
+  onWindowLoaded(callback) {
+    if (this.windowLoaded) return callback();
+    this.tasks.push(callback);
+    if (this.checkWindowLoadedInterval === undefined) {
+      this.checkWindowLoadedInterval = window.setInterval(this.doTasks.bind(this), 50);
+    }
+  }
+
+  startScrollAnimation() {
+    document.querySelector('.icon-scroll').pseudoStyle('before', 'animation-name', 'scroll');
+  }
+
+  revealDocBody() {
+    document.body.style.visibility = 'visible';
+  }
+
+  revealSwipe() {
+    document.querySelector('.swipe-wrap').style.visibility = 'visible';
+  }
+
+  startScrollAnimation() {
+    document.querySelector('.icon-scroll').pseudoStyle('before', 'animation-name', 'scroll');
+  }
+
+  revealPage() {
+    this.revealDocBody();
+    this.revealSwipe();
+    this.isEdgeBrowser ? onWindowLoaded(this.startScrollAnimation) : this.startScrollAnimation();
+    this.intialSubscribeReveal();
+    clearInterval(this.checkLoaded);
+  }
+
+  revealOnLoad() {
+    this.checkLoaded = window.setInterval(() => {
+      if (
+        document.documentElement.classList.contains('fontawesome-i2svg-active')
+        && this.backgroundLoaded
+        && this.finishedPopulatingPanels) {
+        this.revealPage();
+      }
+    }, 50);
+  }
 }
 
-// show/hide if navigated to/away using back button
-window.addEventListener('hashchange', function() {
-  if (window.location.hash !== '#installation-video' && ytVidSection.visible())
-    hideYTVidSection();
-  else if (window.location.hash === '#installation-video' && !ytVidSection.visible())
-    revealYTVidSection();
-});
-
-// SUBSCRIBE POPUP
-
-var subscribePopup = document.querySelector('#subscribe-popup');
-
-function subscribePos() {
-  subscribePopup.style.bottom = '-' + (subscribePopup.clientHeight + 12) + 'px';
-}
-
-onWindowLoaded(subscribePos);
-
-window.addEventListener('resize', subscribePos);
-
-// closing and opening of subscribe popup
-
-document.querySelector('#subscribe-close-button').addEventListener('click', function() {
-  subscribePopup.addClass('display-none');
-});
-
-function doTranslate() {
-  var offset = parseInt(subscribePopup.style.bottom);
-  subscribePopup.style.transform = 'translateY('+offset+'px)';
-  subscribePopup.style.webkitTransform = 'translateY('+offset+'px)';
-}
-
-function translateY() {
-  onWindowLoaded(function() {
-    document.querySelector('.icon-scroll').addEventListener('animationend', function() {
-      window.removeEventListener('resize', subscribePos);
-      doTranslate();
-    }, {'once': true});
-  });
-}
-
-function subscribeReveal(e) {
-  e.preventDefault();
-  subscribePopup.classList.remove('display-none');
-  email.focus();
-}
-
-function intialSubscribeReveal() {
-  // slide subscribe into view
-  subscribePopup.addEventListener('transitionend', function() {
-    subscribePopup.classList.remove('subscribe--animatable');
-  });
-
-  translateY();
-}
+var plp = new productLandingPage();
