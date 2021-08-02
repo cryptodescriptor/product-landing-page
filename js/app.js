@@ -20,6 +20,7 @@ class productLandingPage {
     window.onload = () => { this.windowLoaded = true; };
     this.tasks = [];
 
+    this.setupSmoothScroll();
     this.loadBackgroundImage('./img/bg.jpg');
     this.fetchAndProcessPanelData();
     this.setupPageFunctionalities();
@@ -474,7 +475,6 @@ class productLandingPage {
   }
 
   setupPageFunctionalities() {
-    this.setupSmoothScroll();
     this.setupPanelImgPreviews();
     this.setupNavbar();
     this.setupSwipe();
