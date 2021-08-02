@@ -1,5 +1,5 @@
 /*!
- * Swipe 2.2.14
+ * Swipe 2.3.1
  *
  * Brad Birdsall
  * Copyright 2013, MIT License
@@ -9,6 +9,7 @@
 // if the module has no dependencies, the above pattern can be simplified to
 // eslint-disable-next-line no-extra-semi
 ;(function (root, factory) {
+  root = root || {};
   // eslint-disable-next-line no-undef
   if (typeof define === 'function' && define.amd) {
     // AMD. Register as an anonymous module.
@@ -90,6 +91,23 @@
       return typeof event.cancelable !== 'boolean' || event.cancelable;
     };
 
+    // polyfill for browsers that do not support Element.matches()
+    if (!Element.prototype.matches) {
+      Element.prototype.matches =
+        Element.prototype.matchesSelector ||
+        Element.prototype.mozMatchesSelector ||
+        Element.prototype.msMatchesSelector ||
+        Element.prototype.oMatchesSelector ||
+        Element.prototype.webkitMatchesSelector ||
+        function (s) {
+          var matches = (this.document || this.ownerDocument).querySelectorAll(s),
+            i = matches.length;
+          while (--i >= 0 && matches.item(i) !== this)
+            ;
+          return i > -1;
+        };
+    }
+
     // check browser capabilities
     var browser = {
       addEventListener: !!root.addEventListener,
@@ -153,7 +171,8 @@
     var events = {
 
       handleEvent: function(event) {
-        if (disabled) return;
+        // allow bypass 'resize' event
+        if (disabled && event.type !== 'resize') return;
 
         switch (event.type) {
           case 'mousedown':
@@ -181,10 +200,18 @@
 
         if (isMouseEvent(event)) {
           touches = event;
-          event.preventDefault(); // For desktop Safari drag
         } else {
           touches = event.touches[0];
         }
+
+        // check if the user is swiping on an element that the options say to ignore (for example, a scrolling area)
+        if (options.ignore && touches.target.matches(options.ignore)) {
+          return;
+        }
+
+        // For desktop Safari drag
+        // Fix #146
+        if (isMouseEvent(event)) event.preventDefault();
 
         // measure start values
         start = {
@@ -213,7 +240,7 @@
           element.addEventListener('touchmove', this, browser.passiveEvents ? { passive: false } : false);
           element.addEventListener('touchend', this, false);
         }
-
+        runDragStart(getPos(), slides[index]);
       },
 
       move: function(event) {
@@ -272,9 +299,9 @@
               ( (!index && delta.x > 0 ||             // if first slide and sliding left
                  index === slides.length - 1 &&        // or if last slide and sliding right
                  delta.x < 0                           // and if sliding at all
-                ) ?
-               ( Math.abs(delta.x) / width + 1 )      // determine resistance level
-               : 1 );                                 // no resistance if false
+              ) ?
+                ( Math.abs(delta.x) / width + 1 )      // determine resistance level
+                : 1 );                                 // no resistance if false
 
             // translate 1:1
             translate(index-1, delta.x + slidePos[index-1], 0);
@@ -376,7 +403,7 @@
           element.removeEventListener('touchmove', events, browser.passiveEvents ? { passive: false } : false);
           element.removeEventListener('touchend', events, false);
         }
-
+        runDragEnd(getPos(), slides[index]);
       },
 
       transitionEnd: function(event) {
@@ -603,6 +630,18 @@
     function runTransitionEnd(pos, index) {
       if (options.transitionEnd) {
         options.transitionEnd(pos, index);
+      }
+    }
+
+    function runDragStart(pos, index) {
+      if (options.dragStart) {
+        options.dragStart(pos, index);
+      }
+    }
+
+    function runDragEnd(pos, index) {
+      if (options.dragEnd) {
+        options.dragEnd(pos, index);
       }
     }
 
