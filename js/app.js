@@ -300,9 +300,10 @@ class productLandingPage {
 
   initSmoothScrollListener() {
     let scrollAnchor = document.querySelector('.scroll-anchor');
+    let yOffset = window.scrollY;
 
     window.addEventListener('scroll', () => {
-      if (this.yOffset === 0) {
+      if (yOffset === 0) {
         window.scrollTo(0, 0);
         scrollAnchor.click();
       }
@@ -311,8 +312,6 @@ class productLandingPage {
   }
 
   setupSmoothScroll() {
-    this.yOffset = window.scrollY;
-
     this.smooth = new SmoothScroll('.smooth-scroll', {
       speed: 500,
       speedAsDuration: false,
